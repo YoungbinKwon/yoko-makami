@@ -17,8 +17,7 @@
 -->
 
 <?php
-var_dump($_ENV);
-if(!$_ENV["VCAP_SERVICES"]){ //local dev
+if(!isset($_ENV["VCAP_SERVICES"])){ //local dev
     $mysql_server_name = "us-cdbr-iron-east-03.cleardb.net";
     $mysql_username = "b5efbbb2d6ac89";
     $mysql_password = "564372a3";
