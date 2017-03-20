@@ -16,7 +16,7 @@ class Dispatcher
             $params = explode('/', $params_tmp[0]);
         }
        
-        $controller = 'login';
+        $controller = 'Login';
         if (0 < count($params)) {
             $controller = $params[0];
         }
