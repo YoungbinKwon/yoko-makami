@@ -16,22 +16,25 @@ class Dispatcher
             $params = explode('/', $params_tmp[0]);
         }
        
-        $controller = 'Login';
+        $controller = 'login';
         if (0 < count($params)) {
             $controller = $params[0];
         }
-        
+
         switch ($controller) {
             case 'voicesearch':
                 $className = 'VoiceSearch';
+                break;
             case 'reserve':
                 $className = 'Reserve';
+                break;
             case 'login':
             default:
                 $className = 'Login';
+                break;
         }
 
-        $className = $controller . 'Controller';
+        $className = $className . 'Controller';
         require_once ROOT_PATH . '/Controller/' . $className . '.php';
 
         $url ="/";
