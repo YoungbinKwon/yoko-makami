@@ -7,7 +7,7 @@ $incPath = implode(PATH_SEPARATOR, $includes);
 set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
 
 var_dump(ROOT_PATH);
-var_dump(scandir(ROOT_PATH));
+var_dump(scandir(ROOT_PATH . '/Controller'));
 exit();
 
 function __autoload($className){
