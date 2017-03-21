@@ -2,10 +2,6 @@
 
 define('ROOT_PATH', realpath(dirname(__FILE__)));
 
-$curl = curl_init("http://www.yahoo.co.jp/");
-var_dump(curl_exec($curl));
-exit();
-
 $includes = array(ROOT_PATH . '/Lib/db', ROOT_PATH . '/Lib/util', ROOT_PATH . '/Lib/mvc', ROOT_PATH . '/Model');
 $incPath = implode(PATH_SEPARATOR, $includes);
 set_include_path(get_include_path() . PATH_SEPARATOR . $incPath);
