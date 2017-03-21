@@ -16,9 +16,8 @@ class LoginController
 
     public function indexAction()
     {
+        $customer = new Customer();
+        $customer->selectById(1);
         $this->view->display("Login/index.tpl");
     }
 }
-
-?>
-
