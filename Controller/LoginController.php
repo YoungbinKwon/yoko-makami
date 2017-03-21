@@ -17,7 +17,7 @@ class LoginController
     public function indexAction()
     {
         $customer = new Customer();
-        $customer->selectById(1);
+        $this->view->customer = $customer->selectAll();
         $this->view->display("Login/index.tpl");
     }
 }

@@ -37,6 +37,7 @@ Class DatabaseManager
             echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
             die();
         }
+        $mysqli->set_charset("utf8");
         $this->mysql = $mysqli;
     }
 }

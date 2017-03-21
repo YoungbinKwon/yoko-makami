@@ -4,7 +4,7 @@ class Customer extends DatabaseManager
 {
     function selectAll()
     {
-        $query = "SELECT id, name FROM test";
+        $query = "SELECT * FROM customer";
         $query_result = $this->mysql->query($query);
         $result = array();
 
@@ -22,7 +22,7 @@ class Customer extends DatabaseManager
         }
         
         $id = $this->mysql->real_escape_string($id);
-        $query = "SELECT id, name FROM test where id = " . $id;
+        $query = "SELECT * FROM customer where id = " . $id;
         $query_result = $this->mysql->query($query);
         $result = array();
 
