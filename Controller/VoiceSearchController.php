@@ -20,7 +20,7 @@ class VoiceSearchController
             $nlc = new NaturalLanguageClassifier();
             $result = $nlc->classify($_GET["value"]);
             $this->view->text = $result['text'];
-            $this->view->top_class = $result['top_class'];
+            $this->view->top_class = $result['classes'][0]['class_name'];
         }
         $this->view->display("VoiceSearch/search.tpl");
     }

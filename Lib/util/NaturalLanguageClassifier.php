@@ -8,7 +8,7 @@ class NaturalLanguageClassifier {
 
     public function __construct()
     {
-        $this->url_base = 'https://gateway.watsonplatform.net/natural-language-classifier/api/v1/classifiers/90e7b4x199-nlc-3530/classify/';
+        $this->url_base = 'https://gateway.watsonplatform.net/natural-language-classifier/api/v1/classifiers/90e7b7x198-nlc-3622/classify/';
         $this->username = '85d6af8a-4ea8-4da1-8fed-ff0e5a255a6b';
         $this->password = 'KLZzjXHSrFKT';
     }
