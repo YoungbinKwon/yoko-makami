@@ -21,7 +21,7 @@
             margin: 20px auto 20px;
             text-align: center;
         }
-        .wrapper > div {
+        .wrapper {
             margin-bottom: 10px;
         }
         button {
