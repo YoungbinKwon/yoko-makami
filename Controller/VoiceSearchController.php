@@ -16,7 +16,12 @@ class VoiceSearchController
 
     public function searchAction()
     {
-        if (isset($_GET["value"])) {
+        if (isset($_POST["audio"])) {
+            $stt = new SpeechToText();
+            $text = $stt->getText($_POST["audio"]);
+var_dump($text);
+exit();
+
             $nlc = new NaturalLanguageClassifier();
             $result = $nlc->classify($_GET["value"]);
             $this->view->text = $result['text'];

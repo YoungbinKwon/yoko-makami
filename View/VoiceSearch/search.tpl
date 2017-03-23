@@ -1,42 +1,3 @@
-<?php
-require_once('env_var.php');
-if (isset($_POST['audio'])) {
-    try {
-        $postData = str_replace('data:audio/wav;base64,', '', $_POST['audio']);
-
-        $credentials = $crudential_for_stt;
-
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?continuous=true&model=ja-JP_BroadbandModel',
-            CURLOPT_POST => true,
-            CURLOPT_BINARYTRANSFER => true,
-            CURLOPT_POSTFIELDS => base64_decode($postData),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                "Content-Type: audio/wav",
-                "Authorization: Basic " . base64_encode($credentials),
-            ],
-        ]);
-
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $result = json_decode($result);
-var_dump($result->results[0]->alternatives[0]->transcript);
-exit;
-        echo $result->results[0]->alternatives[0]->transcript;
-
-
-    } catch(Exception $e) {
-        var_dump($e);
-    }
-
-
-    exit;
-}
-
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -60,7 +21,7 @@ exit;
             margin: 20px auto 20px;
             text-align: center;
         }
-        .wrapper > div {
+        .wrapper {
             margin-bottom: 10px;
         }
         button {
