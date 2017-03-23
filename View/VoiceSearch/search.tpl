@@ -1,5 +1,4 @@
 <?php
-require_once('env_var.php');
 if (isset($_POST['audio'])) {
     try {
         $postData = str_replace('data:audio/wav;base64,', '', $_POST['audio']);
