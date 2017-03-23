@@ -18,14 +18,23 @@ class VoiceSearchController
     {
         if (isset($_POST["audio"])) {
             $stt = new SpeechToText();
-            $text = $stt->getText($_POST["audio"]);
-var_dump($text);
-exit();
+            $voice_result = $stt->getText($_POST["audio"]);
+            $results = $voice_result->results;
 
             $nlc = new NaturalLanguageClassifier();
-            $result = $nlc->classify($_GET["value"]);
-            $this->view->text = $result['text'];
-            $this->view->top_class = $result['classes'][0]['class_name'];
+            $i = 0;
+            foreach ($results as $result) {
+                $phrase_info = $result->alternatives;
+                $phrase = $phrase_info[0]->transcript;
+                $class = $nlc->classify($phrase);
+                $class_results[$i]['text'] = $class['text'];
+                $class_results[$i]['class'] = $class['classes'][0]['class_name'];
+                $i++;
+            }
+var_dump($class_results);
+exit();
+            //$this->view->text = $result['text'];
+            //$this->view->top_class = $result['classes'][0]['class_name'];
         }
         $this->view->display("VoiceSearch/search.tpl");
     }
