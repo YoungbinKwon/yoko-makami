@@ -1,23 +1,222 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="css/common.css"/>
-    <link rel="stylesheet" type="text/css" href="css/voicesearch.css"/>
-    <script type="text/javascript" src="js/common.js"></script>
-    <script type="text/javascript" src="js/voicesearch.js"></script>
-  </head>
-  <body class="search">
-    VoiceSearch Search ページ
-    <form action="" method="GET">
-        <input type="text" name="value">
-        <input type="submit" value="Analyze">
-    </form>
-<?php 
-if (isset($text) && isset($top_class)) {
-    echo("<p> text=" . $text . " top_class=" . $top_class . "</p>");
-}    
+<?php
+require_once('env_var.php');
+if (isset($_POST['audio'])) {
+    try {
+        $postData = str_replace('data:audio/wav;base64,', '', $_POST['audio']);
+
+        $credentials = $crudential_for_stt;
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => 'https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?continuous=true&model=ja-JP_BroadbandModel',
+            CURLOPT_POST => true,
+            CURLOPT_BINARYTRANSFER => true,
+            CURLOPT_POSTFIELDS => base64_decode($postData),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: audio/wav",
+                "Authorization: Basic " . base64_encode($credentials),
+            ],
+        ]);
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $result = json_decode($result);
+var_dump($result->results[0]->alternatives[0]->transcript);
+exit;
+        echo $result->results[0]->alternatives[0]->transcript;
+
+
+    } catch(Exception $e) {
+        var_dump($e);
+    }
+
+
+    exit;
+}
+
 ?>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Starter Application</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        body, button, textarea {
+            font-family: Meiryo;
+        }
+
+        .result {
+            width: 50%;
+            height: 120px;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .wrapper {
+            width: 1200px;
+            margin: 20px auto 20px;
+            text-align: center;
+        }
+        .wrapper > div {
+            margin-bottom: 10px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div>
+            <button type="button" class="start">start</button>
+            <button type="button" class="end">end</button>
+        </div>
+        <textarea class="result"></textarea>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+
+    var recordingFlag = false;
+
+    document.querySelector('.start').addEventListener('click', function() {
+        recordingFlag = true;
+        recordStart();
+    });
+
+    document.querySelector('.end').addEventListener('click', function() {
+        recordingFlag = false;
+    });
+
+    var audioContext = new AudioContext();
+    navigator.getUserMedia = navigator.getUserMedia ||　navigator.webkitGetUserMedia ||　navigator.mozGetUserMedia ||　navigator.msGetUserMedia;
+
+    function recordStart() {
+        if (recordingFlag == false) {
+            return;
+        }
+
+        navigator.getUserMedia(
+            {video: false, audio: true},
+            function(stream){
+                var bufferSize = 4096;
+                var mediaStreamSource =　audioContext.createMediaStreamSource(stream);
+                var scriptProcessor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+                mediaStreamSource.connect(scriptProcessor);
+                scriptProcessor.connect(audioContext.destination);
+
+                var audioBufferArray = [];
+                scriptProcessor.onaudioprocess = function(event){
+                    var channel = event.inputBuffer.getChannelData(0);
+                    var buffer = new Float32Array(bufferSize);
+                    for (var i = 0; i < bufferSize; i++) {
+                        buffer[i] = channel[i];
+                    }
+                    audioBufferArray.push(buffer);
+                }
+
+                setTimeout(function(){
+                    stream.getTracks()[0].stop();
+
+                    var blob = exportWAV(audioBufferArray, audioContext.sampleRate)
+                    var reader = new window.FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function() {
+                        var request = $.ajax({
+                            url: '/voicesearch/search/',
+                            method: 'post',
+                            data: {
+                                audio: reader.result
+                            },
+                        });
+
+                        request.done(function(data) {
+                            $(".result").val($(".result").val() + data);
+                        });
+                    };
+
+                    if (recordingFlag) {
+                        setTimeout(function() {
+                            recordStart();
+                        }, 100);
+                    }
+                }, 5000);
+            },
+            function(err){
+                console.log(err.name ? err.name : err);
+            }
+        );
+
+        var getAudioBuffer = function(audioBufferArray, bufferSize){
+            var o = this;
+            var buffer = audioContext.createBuffer(
+                1,
+                audioBufferArray.length * bufferSize,
+                audioContext.sampleRate
+            );
+            var channel = buffer.getChannelData(0);
+            for (var i = 0; i < audioBufferArray.length; i++) {
+                for (var j = 0; j < bufferSize; j++) {
+                    channel[i * bufferSize + j] = audioBufferArray[i][j];
+                }
+            }
+            return buffer;
+        }
+        var exportWAV = function(audioData, sampleRate) {
+            var encodeWAV = function(samples, sampleRate) {
+                var buffer = new ArrayBuffer(44 + samples.length * 2);
+                var view = new DataView(buffer);
+                var writeString = function(view, offset, string) {
+                    for (var i = 0; i < string.length; i++){
+                        view.setUint8(offset + i, string.charCodeAt(i));
+                    }
+                };
+                var floatTo16BitPCM = function(output, offset, input) {
+                    for (var i = 0; i < input.length; i++, offset += 2){
+                        var s = Math.max(-1, Math.min(1, input[i]));
+                        output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                    }
+                };
+                writeString(view, 0, 'RIFF');
+                view.setUint32(4, 32 + samples.length * 2, true);
+                writeString(view, 8, 'WAVE');
+                writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true);
+                view.setUint16(22, 1, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true);
+                view.setUint16(34, 16, true);
+                writeString(view, 36, 'data');
+                view.setUint32(40, samples.length * 2, true);
+                floatTo16BitPCM(view, 44, samples);
+                return view;
+            };
+            var mergeBuffers = function(audioData) {
+                var sampleLength = 0;
+                for (var i = 0; i < audioData.length; i++) {
+                  sampleLength += audioData[i].length;
+                }
+                var samples = new Float32Array(sampleLength);
+                var sampleIdx = 0;
+                for (var i = 0; i < audioData.length; i++) {
+                  for (var j = 0; j < audioData[i].length; j++) {
+                    samples[sampleIdx] = audioData[i][j];
+                    sampleIdx++;
+                  }
+                }
+                return samples;
+            };
+            var dataview = encodeWAV(mergeBuffers(audioData), sampleRate);
+            var audioBlob = new Blob([dataview], { type: 'audio/wav' });
+            return audioBlob;
+        };
+    }
+    </script>
+</body>
 </html>
