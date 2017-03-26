@@ -1,16 +1,17 @@
 <?php
-
 class VoiceSearchController
 {
     private $request;
     private $model;
     private $view;
     private $url;
-
     public function __construct($url)
     {
         $this->model = new VoiceSearchModel();
         $this->view = new Template();
+        $igo = new Igo('./Lib/ipadic', 'UTF-8');
+$igo->parse('aaaa');
+var_dump($igo);
         $this->url = $url;
     }
 
@@ -23,16 +24,14 @@ class VoiceSearchController
 
             $nlc = new NaturalLanguageClassifier();
             $i = 0;
-            foreach ($results as $result) {
+            /*foreach ($results as $result) {
                 $phrase_info = $result->alternatives;
                 $phrase = $phrase_info[0]->transcript;
                 $class = $nlc->classify($phrase);
                 $class_results[$i]['text'] = $class['text'];
                 $class_results[$i]['class'] = $class['classes'][0]['class_name'];
                 $i++;
-            }
-var_dump($class_results);
-exit();
+            }*/
             //$this->view->text = $result['text'];
             //$this->view->top_class = $result['classes'][0]['class_name'];
         }
