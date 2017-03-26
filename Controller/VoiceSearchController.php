@@ -9,7 +9,7 @@ class VoiceSearchController
     {
         $this->model = new VoiceSearchModel();
         $this->view = new Template();
-        //$igo = new Igo('./Lib/ipadic', 'UTF-8');
+        $igo = new Igo('./Lib/ipadic', 'UTF-8');
         //var_dump($igo->parse('aaaa'));
         $this->url = $url;
     }
