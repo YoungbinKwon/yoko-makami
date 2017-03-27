@@ -7,6 +7,7 @@ class VoiceSearchController
     private $url;
     public function __construct($url)
     {
+        var_dump('uouououo');
         $this->model = new VoiceSearchModel();
         $this->view = new Template();
         $igo = new Igo('./Lib/ipadic', 'UTF-8');
